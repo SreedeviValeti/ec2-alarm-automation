@@ -9,9 +9,12 @@ resource "aws_cloudwatch_event_rule" "eventruleforec2alarm" {
     event_bus_name = aws_cloudwatch_event_bus.eventbus.arn
     event_pattern = jsonencode(
         {
-            "eventSource" : "ec2.amazonaws.com",
-            "eventName" : "RunInstances",
-            "awsRegion" : "us-east-1",
+           "source" : ["aws.ec2"],
+           "detail-type" : ["AWS API Call via CloudTrail"],
+           "detail" : {
+            "eventSource" : ["ec2.amazonaws.com"],
+            "eventName" : ["RunInstances"],
+            "awsRegion" : ["us-east-1"],
            "responseElements": {
              "instancesSet": {
                 "items": {
