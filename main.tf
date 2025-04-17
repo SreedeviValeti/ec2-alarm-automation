@@ -7,7 +7,7 @@ resource "aws_cloudwatch_event_rule" "eventruleforec2alarm" {
     name = "capture-instance-termination-launch-event"
     description = "This event captures ec2 instance launch and termination events"
     event_bus_name = aws_cloudwatch_event_bus.eventbus.arn
-    event_pattern = json_encode(
+    event_pattern = jsonencode(
         {
             "eventSource" : "ec2.amazonaws.com",
             "eventName" : "RunInstances",
@@ -30,8 +30,8 @@ resource "aws_cloudwatch_event_rule" "eventruleforec2alarm" {
 }
 
 resource "aws_cloudwatch_event_target" "alerttarget" {
-    arn = aws_lambda_function.alert_lambda.role
-    rule = aws_cloudwatch_event_rule.eventruleforec2alarm.id
+    arn = aws_lambda_function.alert_lambda.arn
+    rule = aws_cloudwatch_event_rule.eventruleforec2alarm.name
 }
 
 resource "aws_iam_policy" "iam_policy_for_alert_lambda" {
@@ -66,7 +66,7 @@ resource "aws_iam_role" "lambda_assume_role" {
     })
 }
 
-resource "aws_iam_role_policy_attatchment" "lambda_permission_policy_attachement"{
+resource "aws_iam_role_policy_attachment" "lambda_permission_policy_attachement"{
     role = aws_iam_role.lambda_assume_role.name
     policy_arn = aws_iam_policy.iam_policy_for_alert_lambda.arn
 }
@@ -74,8 +74,8 @@ resource "aws_iam_role_policy_attatchment" "lambda_permission_policy_attachement
 
 data "archive_file" "code" {
     type = "zip"
-    source_dir = "lambda_function"
-    output_path = lambda_function.zip
+    source_dir  = "${path.module}/lambda_function"
+    output_path = "${path.module}/lambda_function.zip"
 }
 
 resource "aws_lambda_function" "alert_lambda" {
@@ -87,5 +87,12 @@ resource "aws_lambda_function" "alert_lambda" {
     package_type = "Zip"
     handler = "handler.lambda_handler"
     filename = data.archive_file.code.output_path
+}
+
+resource "aws_lambda_permission" "lambda_invoke_permision" {
+    action = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.alert_lambda.function_name
+    principal = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.eventruleforec2alarm.arn
 }
 
