@@ -82,7 +82,7 @@ resource "aws_lambda_function" "alert_lambda" {
     function_name = "alert-create-automate-lambda"
     role = aws_iam_role.lambda_assume_role.arn
     runtime = "python3.9"
-    source_code_hash = data.archive_file.code.output_path_base64sha256
+    source_code_hash = data.archive_file.code.output_base64sha256
     timeout = 600
     package_type = "Zip"
     handler = "handler.lambda_handler"
