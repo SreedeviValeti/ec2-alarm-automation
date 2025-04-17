@@ -18,11 +18,8 @@ resource "aws_cloudwatch_event_rule" "eventruleforec2alarm" {
            "responseElements": {
              "instancesSet": {
                 "items": {
-                    "currentState": {
-                        "name": ["running"]
-                    },
-                    "previousState": {
-                        "name": ["pending"]
+                    "instanceState": {
+                        "name": "pending"
                     }
                 }
             }
