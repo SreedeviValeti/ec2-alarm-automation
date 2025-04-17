@@ -36,6 +36,7 @@ resource "aws_cloudwatch_event_rule" "eventruleforec2alarm" {
 resource "aws_cloudwatch_event_target" "alerttarget" {
     arn = aws_lambda_function.alert_lambda.arn
     rule = aws_cloudwatch_event_rule.eventruleforec2alarm.name
+    event_bus_name  = aws_cloudwatch_event_bus.eventbus.name 
 }
 
 resource "aws_iam_policy" "iam_policy_for_alert_lambda" {
