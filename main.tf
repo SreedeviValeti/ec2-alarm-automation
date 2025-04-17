@@ -8,23 +8,13 @@ resource "aws_cloudwatch_event_rule" "eventruleforec2alarm" {
     description = "This event captures ec2 instance launch and termination events"
     event_bus_name = aws_cloudwatch_event_bus.eventbus.arn
     event_pattern = jsonencode(
-        {
-           "source" : ["aws.ec2"],
-           "detail-type" : ["AWS API Call via CloudTrail"],
-           "detail" : {
-            "eventSource" : ["ec2.amazonaws.com"],
-            "eventName" : ["RunInstances"],
-            "awsRegion" : ["us-east-1"],
-           "responseElements": {
-             "instancesSet": {
-                "items": {
-                    "instanceState": {
-                        "name": ["pending"]
-                    }
-                }
-            }
-        }
-    }
+{
+  "source": ["aws.cloudtrail"],
+  "detail-type": ["AWS API Call via CloudTrail"],
+  "detail": {
+    "eventSource": ["cloudtrail.amazonaws.com"],
+    "eventName": ["RunInstances", "TerminateInstances"]
+  }
 }
     )
 
